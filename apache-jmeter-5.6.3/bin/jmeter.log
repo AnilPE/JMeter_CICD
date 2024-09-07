@@ -1,0 +1,42 @@
+2024-09-08 00:06:29,540 INFO o.a.j.u.JMeterUtils: Setting Locale to en_IN
+2024-09-08 00:06:30,440 INFO o.a.j.JMeter: Loading user properties from: user.properties
+2024-09-08 00:06:30,460 INFO o.a.j.JMeter: Loading system properties from: system.properties
+2024-09-08 00:06:30,625 INFO o.a.j.JMeter: Copyright (c) 1998-2024 The Apache Software Foundation
+2024-09-08 00:06:30,626 INFO o.a.j.JMeter: Version 5.6.3
+2024-09-08 00:06:30,626 INFO o.a.j.JMeter: java.version=17.0.12
+2024-09-08 00:06:30,627 INFO o.a.j.JMeter: java.vm.name=Java HotSpot(TM) 64-Bit Server VM
+2024-09-08 00:06:30,628 INFO o.a.j.JMeter: os.name=Windows 10
+2024-09-08 00:06:30,628 INFO o.a.j.JMeter: os.arch=amd64
+2024-09-08 00:06:30,628 INFO o.a.j.JMeter: os.version=10.0
+2024-09-08 00:06:30,629 INFO o.a.j.JMeter: file.encoding=Cp1252
+2024-09-08 00:06:30,631 INFO o.a.j.JMeter: java.awt.headless=null
+2024-09-08 00:06:30,631 INFO o.a.j.JMeter: Max memory     =1052770304
+2024-09-08 00:06:30,632 INFO o.a.j.JMeter: Available Processors =4
+2024-09-08 00:06:30,881 INFO o.a.j.JMeter: Default Locale=English (India)
+2024-09-08 00:06:30,882 INFO o.a.j.JMeter: JMeter  Locale=English (India)
+2024-09-08 00:06:30,883 INFO o.a.j.JMeter: JMeterHome=F:\CI-CD\JMeter\apache-jmeter-5.6.3
+2024-09-08 00:06:30,883 INFO o.a.j.JMeter: user.dir  =F:\CI-CD\JMeter\apache-jmeter-5.6.3\bin
+2024-09-08 00:06:30,885 INFO o.a.j.JMeter: PWD       =F:\CI-CD\JMeter\apache-jmeter-5.6.3\bin
+2024-09-08 00:06:35,553 INFO o.a.j.JMeter: IP: 192.168.246.1 Name: LAPTOP-DRJITS3T FullName: LAPTOP-DRJITS3T
+2024-09-08 00:06:35,754 INFO o.a.j.JMeter: Loaded icon properties from org/apache/jmeter/images/icon.properties
+2024-09-08 00:06:38,670 INFO o.a.j.JMeterGuiLauncher: Setting LAF to: laf:javax.swing.plaf.metal.MetalLookAndFeel
+2024-09-08 00:07:00,153 INFO o.a.j.s.FileServer: Default base='F:\CI-CD\JMeter\apache-jmeter-5.6.3\bin'
+2024-09-08 00:07:00,158 INFO o.a.j.g.a.Load: Loading file: F:\CI-CD\JMeter\TestScripts\JMX\CI-CD_JMeter.jmx
+2024-09-08 00:07:00,158 INFO o.a.j.s.FileServer: Set new base='F:\CI-CD\JMeter\TestScripts\JMX'
+2024-09-08 00:07:01,754 INFO o.a.j.s.SaveService: Testplan (JMX) version: 2.2. Testlog (JTL) version: 2.2
+2024-09-08 00:07:01,921 INFO o.a.j.s.SaveService: Using SaveService properties version 5.0
+2024-09-08 00:07:01,923 INFO o.a.j.s.SaveService: Using SaveService properties file encoding UTF-8
+2024-09-08 00:07:01,927 INFO o.a.j.s.SaveService: Loading file: F:\CI-CD\JMeter\TestScripts\JMX\CI-CD_JMeter.jmx
+2024-09-08 00:07:02,033 INFO o.a.j.p.h.c.CookieManager: Settings: Delete null: true Check: true Allow variable: true Save: false Prefix: COOKIE_
+2024-09-08 00:07:02,069 INFO o.a.j.p.h.c.CacheManager: Will only cache the following methods: [GET]
+2024-09-08 00:07:02,132 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/html is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2024-09-08 00:07:02,133 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for application/xhtml+xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2024-09-08 00:07:02,133 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for application/xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2024-09-08 00:07:02,133 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2024-09-08 00:07:02,134 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/vnd.wap.wml is org.apache.jmeter.protocol.http.parser.RegexpHTMLParser
+2024-09-08 00:07:02,134 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/css is org.apache.jmeter.protocol.http.parser.CssParser
+2024-09-08 00:07:04,330 INFO o.a.j.s.SampleResult: Note: Sample TimeStamps are START times
+2024-09-08 00:07:04,330 INFO o.a.j.s.SampleResult: sampleresult.default.encoding is set to UTF-8
+2024-09-08 00:07:04,330 INFO o.a.j.s.SampleResult: sampleresult.useNanoTime=true
+2024-09-08 00:07:04,331 INFO o.a.j.s.SampleResult: sampleresult.nanoThreadSleep=5000
+2024-09-08 00:07:06,015 INFO o.a.j.s.FileServer: Set new base='F:\CI-CD\JMeter\TestScripts\JMX'
