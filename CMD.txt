@@ -1,4 +1,4 @@
-1st - cmd
+2nd - cmd
 ______
 F:\CI-CD\apache-jmeter-5.6.3\bin>jmeter -n -t F:\CI-CD\JMeter\TestScripts\JMX\CI-CD_JMeter.jmx -JUsers=25 -JLoopCount=7 -JRampUp=50 -f -l F:\CI-CD\JMeter\TestResults\CI-CD_JMeter_7thSept24_25User_7Itr.jtl
 
