@@ -1,0 +1,40 @@
+name: JMeter_run
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  run-jmeter:
+    runs-on: ubuntu-latest
+
+    env:
+      JMETER_HOME: ${{ github.workspace }}/apache-jmeter-5.6.3
+      PATH: ${{ github.workspace }}/apache-jmeter-5.6.3/bin:${{ env.PATH }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Java
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openjdk-17-jdk
+
+      - name: Install JMeter 5.6.3
+        run: |
+          curl -sL https://downloads.apache.org/jmeter/binaries/apache-jmeter-5.6.3.zip -o jmeter.zip
+          unzip -q jmeter.zip
+
+      - name: Run JMeter Test
+        run: |
+          jmeter -n -t apache-jmeter-5.6.3/bin/examples/CSVSample.jmx -l results.jtl
+
+      - name: Upload JMeter Results
+        uses: actions/upload-artifact@v3
+        with:
+          name: jmeter-results
+          path: results.jtl
