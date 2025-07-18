@@ -27,9 +27,10 @@ jobs:
 
       - name: Download CMDRunner
         run: |
-          wget -q https://jmeter-plugins.org/files/packages/jpgc-cmd-2.3.zip -O CMDRunner.zip
+          wget -q https://jmeter-plugins.org/files/packages/jpgc-cmd-2.4.zip -O CMDRunner.zip
+          file CMDRunner.zip
+          unzip -l CMDRunner.zip
           unzip -o CMDRunner.zip
-          # The jar will be extracted here: CMDRunner.jar
 
       - name: Run JMeter Test
         run: |
