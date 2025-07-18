@@ -15,7 +15,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Install Java
+      - name: Install Java and tools
         run: |
           sudo apt-get update
           sudo apt-get install -y openjdk-17-jdk wget unzip
@@ -25,10 +25,10 @@ jobs:
           curl -sL https://downloads.apache.org/jmeter/binaries/apache-jmeter-5.6.3.zip -o jmeter.zip
           unzip -o -q jmeter.zip
 
-      - name: Download CMDRunner plugin
+      - name: Download CMDRunner
         run: |
-          wget -q https://jmeter-plugins.org/downloads/file/CMDRunner-2.3.zip
-          unzip -o CMDRunner-2.3.zip
+          wget -q https://jmeter-plugins.org/files/packages/jpgc-cmd-2.3.zip -O CMDRunner.zip
+          unzip -o CMDRunner.zip
           # The jar will be extracted here: CMDRunner.jar
 
       - name: Run JMeter Test
