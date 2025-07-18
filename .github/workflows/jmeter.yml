@@ -25,13 +25,14 @@ jobs:
           curl -sL https://downloads.apache.org/jmeter/binaries/apache-jmeter-5.6.3.zip -o jmeter.zip
           unzip -o -q jmeter.zip
 
-      - name: Download CMDRunner
+      - name: Download CMDRunner with user-agent and retries
         run: |
           set -x
-          wget --tries=3 --timeout=30 https://jmeter-plugins.org/files/packages/jpgc-cmd-2.4.zip -O CMDRunner.zip
+          wget --tries=5 --timeout=30 --user-agent="Mozilla/5.0 (X11; Linux x86_64)" \
+            https://jmeter-plugins.org/files/packages/jpgc-cmd-2.4.zip -O CMDRunner.zip
           file CMDRunner.zip
           unzip -t CMDRunner.zip
-          unzip -o -t 3 CMDRunner.zip
+          unzip -o CMDRunner.zip
 
       - name: Run JMeter Test
         run: |
