@@ -27,8 +27,8 @@ jobs:
 
       - name: Download CMDRunner 2.3
         run: |
-          wget -q https://jmeter-plugins.org/files/packages/jpgc-cmd-2.3.zip -O CMDRunner.zip
-          file CMDRunner.zip
+          wget --tries=5 --timeout=30 --user-agent="Mozilla/5.0 (X11; Linux x86_64)" https://jmeter-plugins.org/files/packages/jpgc-cmd-2.3.zip -O CMDRunner.zip
+          ls -lh CMDRunner.zip
           unzip -t CMDRunner.zip
           unzip -o CMDRunner.zip
 
