@@ -16,5 +16,7 @@ jobs:
     - uses: actions/checkout@v3
                 - name: run jmeter on github action
                   uses: sebiboga/run-jmeter-github-action@v0.0.5
+                  with:
+          testFilePath: apache-jmeter-5.6.3/bin/examples/CSVSample.jmx
           
     
