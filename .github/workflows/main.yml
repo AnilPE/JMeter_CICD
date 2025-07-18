@@ -1,22 +1,21 @@
 name: JMeter_run
+
 on:
   push:
     branches: [ main ]
   pull_request:
-    branches:[ main ]
-
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
-  build:
+  run-jmeter-test:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - uses: actions/checkout@v3
-                - name: run jmeter on github action
-                  uses: sebiboga/run-jmeter-github-action@v0.0.5
-                  with:
+      - name: Run JMeter Test
+        uses: sebiboga/run-jmeter-github-action@v0.0.5
+        with:
           testFilePath: apache-jmeter-5.6.3/bin/examples/CSVSample.jmx
-          
-    
