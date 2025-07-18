@@ -18,12 +18,18 @@ jobs:
       - name: Install Java
         run: |
           sudo apt-get update
-          sudo apt-get install -y openjdk-17-jdk
+          sudo apt-get install -y openjdk-17-jdk wget unzip
 
       - name: Install JMeter 5.6.3
         run: |
           curl -sL https://downloads.apache.org/jmeter/binaries/apache-jmeter-5.6.3.zip -o jmeter.zip
           unzip -o -q jmeter.zip
+
+      - name: Download CMDRunner plugin
+        run: |
+          wget -q https://jmeter-plugins.org/downloads/file/CMDRunner-2.3.zip
+          unzip -o CMDRunner-2.3.zip
+          # The jar will be extracted here: CMDRunner.jar
 
       - name: Run JMeter Test
         run: |
@@ -54,6 +60,10 @@ jobs:
           mkdir -p jmeter-report
           jmeter -g results.jtl -o jmeter-report || echo "Report generation skipped."
 
+      - name: Generate Aggregate CSV report using CMDRunner
+        run: |
+          java -jar CMDRunner.jar --tool Reporter --generate-csv aggregate.csv --input-jtl results.jtl --plugin-type AggregateReport
+
       - name: Upload JMeter Results
         uses: actions/upload-artifact@v4
         with:
@@ -65,3 +75,9 @@ jobs:
         with:
           name: jmeter-html-report
           path: jmeter-report/
+
+      - name: Upload Aggregate CSV
+        uses: actions/upload-artifact@v4
+        with:
+          name: aggregate-csv-report
+          path: aggregate.csv
