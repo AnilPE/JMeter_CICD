@@ -1,4 +1,4 @@
-name: JMeter_Run
+name: JMeter_run
 
 on:
   push:
@@ -11,28 +11,28 @@ jobs:
   run-jmeter:
     runs-on: ubuntu-latest
 
+    env:
+      JMETER_HOME: ${{ github.workspace }}/apache-jmeter-5.6.3
+
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Java
+      - name: Install Java
         run: |
           sudo apt-get update
           sudo apt-get install -y openjdk-17-jdk
 
-      - name: Set environment variables
+      - name: Set up JMeter binary permissions
         run: |
-          echo "JAVA_HOME=$(dirname $(dirname $(readlink -f $(which javac))))" >> $GITHUB_ENV
-          echo "$JAVA_HOME/bin" >> $GITHUB_PATH
+          chmod +x apache-jmeter-5.6.3/bin/jmeter
 
-      - name: Make JMeter executable
-        run: chmod +x apache-jmeter-5.6.3/bin/jmeter
-
-      - name: Run JMeter Test (CSVSample)
+      - name: Run JMeter Test Plan
         run: |
+          export PATH="$JMETER_HOME/bin:$PATH"
           mkdir -p Results/tmp
-          export PATH="$GITHUB_WORKSPACE/apache-jmeter-5.6.3/bin:$PATH"
-          jmeter -n -t apache-jmeter-5.6.3/bin/examples/CSVSample.jmx \
+          jmeter -n \
+            -t apache-jmeter-5.6.3/bin/examples/CSVSample.jmx \
             -l Results/tmp/results.jtl \
             -Jjmeter.save.saveservice.output_format=csv \
             -Jjmeter.save.saveservice.timestamp_format=ms \
@@ -48,23 +48,30 @@ jobs:
             -Jjmeter.save.saveservice.time=true \
             -Jjmeter.save.saveservice.connect_time=true
 
+      - name: Debug: Check contents of Results/tmp
+        run: |
+          echo "🔍 Listing contents of Results/tmp:"
+          ls -la Results/tmp || echo "❌ Results/tmp does not exist"
+
       - name: Generate HTML Report
         run: |
-          export PATH="$GITHUB_WORKSPACE/apache-jmeter-5.6.3/bin:$PATH"
-          jmeter -g Results/tmp/results.jtl -o Results/tmp/html-report
+          export PATH="$JMETER_HOME/bin:$PATH"
+          jmeter -g Results/tmp/results.jtl -o Results/tmp/html-report || echo "⚠️ Report generation skipped."
 
-      - name: Rename and move results with timestamp
+      - name: Timestamp results directory
         run: |
           TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
-          mkdir -p Results/$TIMESTAMP
-          mv Results/tmp/* Results/$TIMESTAMP/
-          rm -rf Results/tmp
+          if [ -d Results/tmp ]; then
+            mkdir -p Results/$TIMESTAMP
+            shopt -s nullglob
+            mv Results/tmp/* Results/$TIMESTAMP/ || echo "⚠️ No files to move."
+            rm -rf Results/tmp
+          else
+            echo "⚠️ Results/tmp folder not found. Skipping move."
+          fi
 
-      - name: Commit results back to repo
-        run: |
-          git config --global user.name 'github-actions'
-          git config --global user.email 'github-actions@github.com'
-          git add Results/
-          git commit -m "Add JMeter results on $(date '+%Y-%m-%d %H:%M:%S')" || echo "No changes to commit"
-          git push origin main
-
+      - name: Upload Results as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: jmeter-artifacts
+          path: Results/
