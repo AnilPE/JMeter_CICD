@@ -33,12 +33,28 @@ jobs:
             -l results.jtl \
             -Jjmeter.save.saveservice.output_format=csv \
             -Jjmeter.save.saveservice.timestamp_format=ms \
-            -Jjmeter.save.saveservice.default_delimiter=,
+            -Jjmeter.save.saveservice.default_delimiter=, \
+            -Jjmeter.save.saveservice.assertion_results_failure_message=true \
+            -Jjmeter.save.saveservice.response_data=false \
+            -Jjmeter.save.saveservice.samplerData=false \
+            -Jjmeter.save.saveservice.url=true \
+            -Jjmeter.save.saveservice.thread_counts=true
+
+      - name: Output JTL file preview
+        run: |
+          echo "Results file size and sample:"
+          ls -lh results.jtl
+          head -40 results.jtl
 
       - name: Generate HTML Report
         run: |
           export PATH="$GITHUB_WORKSPACE/apache-jmeter-5.6.3/bin:$PATH"
-          jmeter -g results.jtl -o jmeter-report
+          if [ -s results.jtl ]; then
+            jmeter -g results.jtl -o jmeter-report
+          else
+            echo "results.jtl is empty or missing, skipping report generation"
+            exit 1
+          fi
 
       - name: Generate Aggregate CSV Report using CMDRunner
         run: |
@@ -51,18 +67,4 @@ jobs:
           path: |
             results.jtl
             aggregate.csv
-            jmeter-report/
-
-
-  download-results:
-    runs-on: ubuntu-latest
-    needs: run-jmeter
-    steps:
-      - name: Download JMeter results artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: jmeter-reports
-          path: ./downloaded-results
-
-      - name: List downloaded files
-        run: ls -la ./downloaded-results
+            jmeter-report
