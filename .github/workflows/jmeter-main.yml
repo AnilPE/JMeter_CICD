@@ -13,19 +13,19 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Install Java and unzip
+      - name: Install Java and tools
         run: |
           sudo apt-get update
           sudo apt-get install -y openjdk-17-jdk unzip
 
-      - name: Install JMeter 5.6.3
+      - name: Set up JMeter
         run: |
-          curl -sL https://downloads.apache.org/jmeter/binaries/apache-jmeter-5.6.3.zip -o jmeter.zip
-          unzip -o -q jmeter.zip
+          export PATH="$GITHUB_WORKSPACE/apache-jmeter-5.6.3/bin:$PATH"
+          echo "JMeter path set."
 
-      - name: Run JMeter Test Plan (CSV results)
+      - name: Run JMeter Test
         run: |
           export PATH="$GITHUB_WORKSPACE/apache-jmeter-5.6.3/bin:$PATH"
           jmeter -n \
@@ -45,36 +45,30 @@ jobs:
             -Jjmeter.save.saveservice.time=true \
             -Jjmeter.save.saveservice.connect_time=true
 
-      - name: Show JTL contents
+      - name: Display JTL output for debug
         run: |
-          echo "----- JTL Output -----"
-          cat results.jtl || echo "results.jtl not found"
+          echo "JTL Content:"
+          cat results.jtl
 
       - name: Generate HTML Report
         run: |
           export PATH="$GITHUB_WORKSPACE/apache-jmeter-5.6.3/bin:$PATH"
           mkdir -p jmeter-report
-          jmeter -g results.jtl -o jmeter-report || echo "Report generation failed."
+          jmeter -g results.jtl -o jmeter-report || echo "Report generation failed but continuing."
 
-      - name: Generate Aggregate CSV Report using CMDRunner
+      - name: Generate Aggregate CSV Report
         run: |
-          java -jar CMDRunner.jar --tool Reporter --generate-csv aggregate.csv --input-jtl results.jtl --plugin-type AggregateReport
-        working-directory: ${{ github.workspace }}
+          java -jar cmdrunner-2.3.jar \
+            --tool Reporter \
+            --generate-csv aggregate.csv \
+            --input-jtl results.jtl \
+            --plugin-type AggregateReport
 
-      - name: Upload JTL Result
+      - name: Upload JMeter Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: results-jtl
-          path: results.jtl
-
-      - name: Upload HTML Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: html-report
-          path: jmeter-report/
-
-      - name: Upload Aggregate Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: aggregate-csv
-          path: aggregate.csv
+          name: jmeter-results
+          path: |
+            results.jtl
+            aggregate.csv
+            jmeter-report/
