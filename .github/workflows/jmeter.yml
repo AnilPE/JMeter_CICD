@@ -51,4 +51,18 @@ jobs:
           path: |
             results.jtl
             aggregate.csv
-            jmeter-report
+            jmeter-report/
+
+
+  download-results:
+    runs-on: ubuntu-latest
+    needs: run-jmeter
+    steps:
+      - name: Download JMeter results artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: jmeter-reports
+          path: ./downloaded-results
+
+      - name: List downloaded files
+        run: ls -la ./downloaded-results
