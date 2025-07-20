@@ -40,25 +40,31 @@ jobs:
             -Jjmeter.save.saveservice.url=true \
             -Jjmeter.save.saveservice.thread_counts=true
 
-      - name: Output JTL file preview
+      - name: Check results.jtl file
         run: |
-          echo "Results file size and sample:"
+          echo "File size:"
           ls -lh results.jtl
-          head -40 results.jtl
+          echo "First 40 lines of results.jtl:"
+          head -40 results.jtl || echo "results.jtl is empty or missing"
 
-      - name: Generate HTML Report
+      - name: Generate HTML Report (if results.jtl not empty)
         run: |
-          export PATH="$GITHUB_WORKSPACE/apache-jmeter-5.6.3/bin:$PATH"
           if [ -s results.jtl ]; then
+            export PATH="$GITHUB_WORKSPACE/apache-jmeter-5.6.3/bin:$PATH"
             jmeter -g results.jtl -o jmeter-report
           else
-            echo "results.jtl is empty or missing, skipping report generation"
+            echo "results.jtl is empty or missing; skipping report generation"
             exit 1
           fi
 
       - name: Generate Aggregate CSV Report using CMDRunner
         run: |
-          java -jar cmdrunner-2.3.jar --tool Reporter --generate-csv aggregate.csv --input-jtl results.jtl --plugin-type AggregateReport
+          if [ -s results.jtl ]; then
+            java -jar cmdrunner-2.3.jar --tool Reporter --generate-csv aggregate.csv --input-jtl results.jtl --plugin-type AggregateReport
+          else
+            echo "results.jtl is empty or missing; skipping aggregate report generation"
+            exit 1
+          fi
 
       - name: Upload results as artifacts
         uses: actions/upload-artifact@v4
