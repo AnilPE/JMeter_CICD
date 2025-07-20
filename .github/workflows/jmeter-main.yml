@@ -1,0 +1,71 @@
+name: JMeter_run
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  run-jmeter:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Java and tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openjdk-17-jdk unzip curl
+
+      - name: Install JMeter 5.6.3
+        run: |
+          curl -sL https://downloads.apache.org/jmeter/binaries/apache-jmeter-5.6.3.zip -o jmeter.zip
+          unzip -q jmeter.zip
+
+      - name: Run JMeter Test Plan
+        run: |
+          export PATH="$GITHUB_WORKSPACE/apache-jmeter-5.6.3/bin:$PATH"
+          jmeter -n \
+            -t apache-jmeter-5.6.3/bin/examples/CSVSample.jmx \
+            -l results.jtl \
+            -Jjmeter.save.saveservice.output_format=xml
+
+      - name: Check results.jtl content
+        run: |
+          if [ ! -s results.jtl ]; then
+            echo "❌ results.jtl is empty. Check if test plan ran correctly."
+            exit 1
+          fi
+          echo "✅ results.jtl contains:"
+          head -n 10 results.jtl
+
+      - name: Generate HTML Report (only if results.jtl has data)
+        run: |
+          export PATH="$GITHUB_WORKSPACE/apache-jmeter-5.6.3/bin:$PATH"
+          mkdir -p jmeter-report
+          jmeter -g results.jtl -o jmeter-report
+
+      - name: Download CMDRunner 2.3
+        run: |
+          curl -L -o cmdrunner.zip https://jmeter-plugins.org/files/packages/jpgc-cmd-2.3.zip
+          unzip -o cmdrunner.zip CMDRunner.jar
+
+      - name: Generate Aggregate CSV Report using CMDRunner
+        run: |
+          java -jar CMDRunner.jar \
+            --tool Reporter \
+            --generate-csv aggregate.csv \
+            --input-jtl results.jtl \
+            --plugin-type AggregateReport
+
+      - name: Upload all artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: jmeter-artifacts
+          path: |
+            results.jtl
+            aggregate.csv
+            jmeter-report/
