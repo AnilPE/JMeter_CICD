@@ -1,4 +1,4 @@
-name: JMeter_run
+name: JMeter_Run
 
 on:
   push:
@@ -12,23 +12,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Install Java
+      - name: Set up Java
         run: |
           sudo apt-get update
           sudo apt-get install -y openjdk-17-jdk
 
-      - name: Install JMeter 5.6.3
+      - name: Set environment variables
         run: |
-          curl -sL https://downloads.apache.org/jmeter/binaries/apache-jmeter-5.6.3.zip -o jmeter.zip
-          unzip -o -q jmeter.zip
+          echo "JAVA_HOME=$(dirname $(dirname $(readlink -f $(which javac))))" >> $GITHUB_ENV
+          echo "$JAVA_HOME/bin" >> $GITHUB_PATH
 
-      - name: Run JMeter Test
+      - name: Make JMeter executable
+        run: chmod +x apache-jmeter-5.6.3/bin/jmeter
+
+      - name: Run JMeter Test (CSVSample)
         run: |
+          mkdir -p Results
           export PATH="$GITHUB_WORKSPACE/apache-jmeter-5.6.3/bin:$PATH"
-          jmeter -n -t apache-jmeter-5.6.3/bin/examples/CSVSample.jmx -l results.jtl \
+          jmeter -n -t apache-jmeter-5.6.3/bin/examples/CSVSample.jmx \
+            -l Results/results.jtl \
             -Jjmeter.save.saveservice.output_format=csv \
             -Jjmeter.save.saveservice.timestamp_format=ms \
             -Jjmeter.save.saveservice.default_delimiter=, \
@@ -43,25 +48,13 @@ jobs:
             -Jjmeter.save.saveservice.time=true \
             -Jjmeter.save.saveservice.connect_time=true
 
-      - name: Show JTL contents (for debug)
-        run: |
-          echo "----- JTL Output -----"
-          cat results.jtl || echo "results.jtl not found"
-
       - name: Generate HTML Report
         run: |
           export PATH="$GITHUB_WORKSPACE/apache-jmeter-5.6.3/bin:$PATH"
-          mkdir -p jmeter-report
-          jmeter -g results.jtl -o jmeter-report || echo "Report generation skipped."
+          jmeter -g Results/results.jtl -o Results/jmeter-html-report
 
-      - name: Prepare combined artifact folder
-        run: |
-          mkdir -p combined-results
-          cp results.jtl combined-results/
-          cp -r jmeter-report combined-results/
-
-      - name: Upload combined JMeter results and report
+      - name: Upload Results folder
         uses: actions/upload-artifact@v4
         with:
           name: jmeter-artifacts
-          path: combined-results/
+          path: Results/
