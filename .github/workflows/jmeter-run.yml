@@ -21,17 +21,22 @@ jobs:
       - name: Install Java
         run: |
           sudo apt-get update
-          sudo apt-get install -y openjdk-17-jdk
+          sudo apt-get install -y openjdk-17-jdk unzip
 
-      - name: Set JMeter binary permissions
-        run: chmod +x apache-jmeter-5.6.3/bin/jmeter
+      - name: Download and Setup JMeter
+        run: |
+          curl -sL https://downloads.apache.org/jmeter/binaries/apache-jmeter-5.6.3.zip -o jmeter.zip
+          unzip -q jmeter.zip
+          chmod +x apache-jmeter-5.6.3/bin/jmeter
+
+      - name: Create Results Directory
+        run: mkdir -p Results/tmp
 
       - name: Run JMeter Test Plan
         run: |
           export PATH="$JMETER_HOME/bin:$PATH"
-          mkdir -p Results/tmp
           jmeter -n \
-            -t apache-jmeter-5.6.3/bin/examples/CSVSample.jmx \
+            -t $JMETER_HOME/bin/examples/CSVSample.jmx \
             -l Results/tmp/results.jtl \
             -Jjmeter.save.saveservice.output_format=csv \
             -Jjmeter.save.saveservice.timestamp_format=ms \
@@ -50,9 +55,9 @@ jobs:
       - name: Generate HTML Report
         run: |
           export PATH="$JMETER_HOME/bin:$PATH"
-          jmeter -g Results/tmp/results.jtl -o Results/tmp/html-report || echo "⚠️ Report generation skipped."
+          jmeter -g Results/tmp/results.jtl -o Results/tmp/html-report || echo "⚠️ HTML Report skipped."
 
-      - name: Move Results to Timestamped Folder
+      - name: Timestamp results folder
         run: |
           TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
           if [ -d Results/tmp ]; then
@@ -63,7 +68,7 @@ jobs:
             echo "⚠️ No tmp results folder found"
           fi
 
-      - name: Upload Results as Artifact
+      - name: Upload Results Folder
         uses: actions/upload-artifact@v4
         with:
           name: jmeter-artifacts
