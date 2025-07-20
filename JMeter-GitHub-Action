@@ -1,0 +1,73 @@
+name: JMeter_run
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  run-jmeter:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Java
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openjdk-17-jdk
+
+      - name: Download and unzip JMeter 5.6.3
+        run: |
+          curl -sL https://downloads.apache.org/jmeter/binaries/apache-jmeter-5.6.3.zip -o jmeter.zip
+          unzip -o -q jmeter.zip
+
+      - name: Make JMeter executables executable
+        run: |
+          chmod +x apache-jmeter-5.6.3/bin/jmeter
+
+      - name: Run JMeter Test Plan (CSVSample.jmx)
+        run: |
+          export PATH="$GITHUB_WORKSPACE/apache-jmeter-5.6.3/bin:$PATH"
+          jmeter -n \
+            -t apache-jmeter-5.6.3/bin/examples/CSVSample.jmx \
+            -l results.jtl \
+            -Jjmeter.save.saveservice.output_format=csv \
+            -Jjmeter.save.saveservice.timestamp_format=ms \
+            -Jjmeter.save.saveservice.default_delimiter=, \
+            -Jjmeter.save.saveservice.assertion_results=none \
+            -Jjmeter.save.saveservice.bytes=true \
+            -Jjmeter.save.saveservice.label=true \
+            -Jjmeter.save.saveservice.latency=true \
+            -Jjmeter.save.saveservice.response_code=true \
+            -Jjmeter.save.saveservice.response_message=true \
+            -Jjmeter.save.saveservice.successful=true \
+            -Jjmeter.save.saveservice.thread_name=true \
+            -Jjmeter.save.saveservice.time=true \
+            -Jjmeter.save.saveservice.connect_time=true
+
+      - name: Show JTL contents (for debug)
+        run: |
+          echo "----- JTL Output -----"
+          cat results.jtl || echo "results.jtl not found"
+
+      - name: Generate HTML Report
+        run: |
+          export PATH="$GITHUB_WORKSPACE/apache-jmeter-5.6.3/bin:$PATH"
+          mkdir -p jmeter-report
+          jmeter -g results.jtl -o jmeter-report || echo "Report generation skipped."
+
+      - name: Upload JMeter Results (CSV)
+        uses: actions/upload-artifact@v4
+        with:
+          name: jmeter-results
+          path: results.jtl
+
+      - name: Upload HTML Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: jmeter-html-report
+          path: jmeter-report/
