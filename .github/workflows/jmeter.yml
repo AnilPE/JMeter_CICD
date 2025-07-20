@@ -25,23 +25,22 @@ jobs:
           curl -sL https://downloads.apache.org/jmeter/binaries/apache-jmeter-5.6.3.zip -o jmeter.zip
           yes | unzip -o -q jmeter.zip
 
-      - name: Run JMeter Test Plan
+      - name: Run JMeter Test Plan (results in XML format)
         run: |
           export PATH="$GITHUB_WORKSPACE/apache-jmeter-5.6.3/bin:$PATH"
           jmeter -n \
             -t TestScripts/JMX/CI-CD_JMeter_InfluxDb_Grafana.jmx \
-            -l results.jtl \
-            -Jjmeter.save.saveservice.output_format=xml \
-            -Jjmeter.save.saveservice.assertion_results_failure_message=true \
-            -Jjmeter.save.saveservice.response_data=false \
-            -Jjmeter.save.saveservice.samplerData=false \
-            -Jjmeter.save.saveservice.url=true \
-            -Jjmeter.save.saveservice.thread_counts=true
+            -l results.jtl
 
-      - name: Generate HTML Report
+      - name: Generate HTML Report from XML JTL
         run: |
           export PATH="$GITHUB_WORKSPACE/apache-jmeter-5.6.3/bin:$PATH"
           jmeter -g results.jtl -o jmeter-report
+
+      - name: Download CMDRunner
+        run: |
+          curl -L -o cmdrunner-2.3.jar https://jmeter-plugins.org/files/packages/jpgc-cmd-2.3.zip
+          unzip -p jpgc-cmd-2.3.zip CMDRunner.jar > cmdrunner-2.3.jar
 
       - name: Generate Aggregate CSV Report using CMDRunner
         run: |
