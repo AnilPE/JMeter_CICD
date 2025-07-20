@@ -30,10 +30,10 @@ jobs:
 
       - name: Run JMeter Test (CSVSample)
         run: |
-          mkdir -p Results
+          mkdir -p Results/tmp
           export PATH="$GITHUB_WORKSPACE/apache-jmeter-5.6.3/bin:$PATH"
           jmeter -n -t apache-jmeter-5.6.3/bin/examples/CSVSample.jmx \
-            -l Results/results.jtl \
+            -l Results/tmp/results.jtl \
             -Jjmeter.save.saveservice.output_format=csv \
             -Jjmeter.save.saveservice.timestamp_format=ms \
             -Jjmeter.save.saveservice.default_delimiter=, \
@@ -51,10 +51,20 @@ jobs:
       - name: Generate HTML Report
         run: |
           export PATH="$GITHUB_WORKSPACE/apache-jmeter-5.6.3/bin:$PATH"
-          jmeter -g Results/results.jtl -o Results/jmeter-html-report
+          jmeter -g Results/tmp/results.jtl -o Results/tmp/html-report
 
-      - name: Upload Results folder
-        uses: actions/upload-artifact@v4
-        with:
-          name: jmeter-artifacts
-          path: Results/
+      - name: Rename and move results with timestamp
+        run: |
+          TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
+          mkdir -p Results/$TIMESTAMP
+          mv Results/tmp/* Results/$TIMESTAMP/
+          rm -rf Results/tmp
+
+      - name: Commit results back to repo
+        run: |
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@github.com'
+          git add Results/
+          git commit -m "Add JMeter results on $(date '+%Y-%m-%d %H:%M:%S')" || echo "No changes to commit"
+          git push origin main
+
