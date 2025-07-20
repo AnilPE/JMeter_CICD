@@ -1,0 +1,30 @@
+https://www.youtube.com/watch?v=Z4Oe8xz6ens&t=1s
+https://hub.docker.com/r/justb4/jmeter
+https://github.com/justb4/docker-jmeter/blob/master/Dockerfile
+__________________________________________________________________
+docker --version
+docker pull justb4/jmeter
+docker ps
+docker tag justb4/jmeter jmeter-docker
+docker run jmeter-docker
+>> current directory of the jmeter in the container is /opt/jmeter/bin
+docker run jmeter-docker -n -t bin/examples/CSVSample.jmx -l ./bin/examples/run1.jtl
+docker ps -a
+docker cp 4a84109aeb44:/opt/apache-jmeter-5.5/bin/examples .
+entire examples folder of the container is copied under the local directory
+
+>>docker run --rm --mount "type=bind,source=D:/jmeter-docker/jmeter-docker-results/examples,target=/tests" jmeter-docker -n -t /tests/CSVSample.jmx -l /tests/CSVSample.jtl
+
+
+Note:-
+ What This Does:
+--rm: Automatically removes the container after it finishes.
+
+--mount: Binds your local folder D:\jmeter-docker\jmeter-docker-results\examples to /tests inside the container.
+
+-n: Runs JMeter in non-GUI mode.
+
+-t /tests/CSVSample.jmx: Specifies the test plan to run (must exist in the mounted folder).
+
+-l /tests/CSVSample.jtl: Saves the results to a .jtl file in the same folder.
+
