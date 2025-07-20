@@ -11,30 +11,35 @@ jobs:
   run-jmeter:
     runs-on: ubuntu-latest
 
+    env:
+      JMETER_HOME: ${{ github.workspace }}/apache-jmeter-5.6.3
+
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Install Java
+      - name: Install Java & dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y openjdk-17-jdk
+          sudo apt-get install -y openjdk-17-jdk unzip
 
-      - name: Download and unzip JMeter 5.6.3
+      - name: Download and Setup JMeter
         run: |
           curl -sL https://downloads.apache.org/jmeter/binaries/apache-jmeter-5.6.3.zip -o jmeter.zip
           unzip -o -q jmeter.zip
-
-      - name: Make JMeter executables executable
-        run: |
           chmod +x apache-jmeter-5.6.3/bin/jmeter
 
-      - name: Run JMeter Test Plan (CSVSample.jmx)
+      - name: Set timestamp variable
+        id: set-time
+        run: echo "timestamp=$(date +'%Y-%m-%d_%H-%M-%S')" >> "$GITHUB_OUTPUT"
+
+      - name: Run JMeter Test Plan
         run: |
-          export PATH="$GITHUB_WORKSPACE/apache-jmeter-5.6.3/bin:$PATH"
+          export PATH="$JMETER_HOME/bin:$PATH"
+          mkdir -p Results/${{ steps.set-time.outputs.timestamp }}
           jmeter -n \
-            -t apache-jmeter-5.6.3/bin/examples/CSVSample.jmx \
-            -l results.jtl \
+            -t $JMETER_HOME/bin/examples/CSVSample.jmx \
+            -l Results/${{ steps.set-time.outputs.timestamp }}/results.jtl \
             -Jjmeter.save.saveservice.output_format=csv \
             -Jjmeter.save.saveservice.timestamp_format=ms \
             -Jjmeter.save.saveservice.default_delimiter=, \
@@ -49,25 +54,14 @@ jobs:
             -Jjmeter.save.saveservice.time=true \
             -Jjmeter.save.saveservice.connect_time=true
 
-      - name: Show JTL contents (for debug)
-        run: |
-          echo "----- JTL Output -----"
-          cat results.jtl || echo "results.jtl not found"
-
       - name: Generate HTML Report
         run: |
-          export PATH="$GITHUB_WORKSPACE/apache-jmeter-5.6.3/bin:$PATH"
-          mkdir -p jmeter-report
-          jmeter -g results.jtl -o jmeter-report || echo "Report generation skipped."
+          export PATH="$JMETER_HOME/bin:$PATH"
+          jmeter -g Results/${{ steps.set-time.outputs.timestamp }}/results.jtl \
+            -o Results/${{ steps.set-time.outputs.timestamp }}/html-report || echo "⚠️ HTML report generation failed."
 
-      - name: Upload JMeter Results (CSV)
+      - name: Upload JMeter Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: jmeter-results
-          path: results.jtl
-
-      - name: Upload HTML Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: jmeter-html-report
-          path: jmeter-report/
+          name: jmeter-artifacts-${{ steps.set-time.outputs.timestamp }}
+          path: Results/${{ steps.set-time.outputs.timestamp }}
