@@ -1,0 +1,13 @@
+timeStamp,elapsed,label,responseCode,responseMessage,threadName,dataType,success,failureMessage,bytes,sentBytes,grpThreads,allThreads,URL,Latency,IdleTime,Connect
+1752995511136,236,Login as u1,200,OK,Thread Group 1-1,text,true,,15,28,1,1,null,0,0,0
+1752995511376,221,Action = none,200,OK,Thread Group 1-1,text,true,,0,0,1,1,null,0,0,0
+1752995511694,284,Action a,200,OK,Thread Group 1-1,text,true,,12,16,1,1,null,0,0,0
+1752995511983,318,Action b,200,OK,Thread Group 1-1,text,true,,12,16,1,1,null,0,0,0
+1752995512305,130,Action c,200,OK,Thread Group 1-1,text,true,,12,16,1,1,null,0,0,0
+1752995512438,264,Action d,200,OK,Thread Group 1-1,text,true,,12,16,1,1,null,0,0,0
+1752995512706,275,Logout,200,OK,Thread Group 1-1,text,true,,13,9,1,1,null,0,0,0
+1752995512982,296,Action = <EOF>,200,OK,Thread Group 1-1,text,true,,0,0,1,1,null,0,0,0
+1752995513279,339,Login as u2,200,OK,Thread Group 1-1,text,true,,15,28,1,1,null,0,0,0
+1752995513619,168,Action = none,200,OK,Thread Group 1-1,text,true,,0,0,1,1,null,0,0,0
+1752995513790,340,Logout,200,OK,Thread Group 1-1,text,true,,13,9,1,1,null,0,0,0
+1752995514131,170,Action = <EOF>,200,OK,Thread Group 1-1,text,true,,0,0,1,1,null,0,0,0
