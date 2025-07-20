@@ -23,9 +23,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y openjdk-17-jdk
 
-      - name: Set up JMeter binary permissions
-        run: |
-          chmod +x apache-jmeter-5.6.3/bin/jmeter
+      - name: Set JMeter binary permissions
+        run: chmod +x apache-jmeter-5.6.3/bin/jmeter
 
       - name: Run JMeter Test Plan
         run: |
@@ -48,26 +47,20 @@ jobs:
             -Jjmeter.save.saveservice.time=true \
             -Jjmeter.save.saveservice.connect_time=true
 
-      - name: Debug: Check contents of Results/tmp
-        run: |
-          echo "🔍 Listing contents of Results/tmp:"
-          ls -la Results/tmp || echo "❌ Results/tmp does not exist"
-
       - name: Generate HTML Report
         run: |
           export PATH="$JMETER_HOME/bin:$PATH"
           jmeter -g Results/tmp/results.jtl -o Results/tmp/html-report || echo "⚠️ Report generation skipped."
 
-      - name: Timestamp results directory
+      - name: Move Results to Timestamped Folder
         run: |
           TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
           if [ -d Results/tmp ]; then
             mkdir -p Results/$TIMESTAMP
-            shopt -s nullglob
-            mv Results/tmp/* Results/$TIMESTAMP/ || echo "⚠️ No files to move."
+            mv Results/tmp/* Results/$TIMESTAMP/ || echo "⚠️ Nothing to move."
             rm -rf Results/tmp
           else
-            echo "⚠️ Results/tmp folder not found. Skipping move."
+            echo "⚠️ No tmp results folder found"
           fi
 
       - name: Upload Results as Artifact
