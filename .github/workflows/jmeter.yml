@@ -31,40 +31,21 @@ jobs:
           jmeter -n \
             -t TestScripts/JMX/CI-CD_JMeter_InfluxDb_Grafana.jmx \
             -l results.jtl \
-            -Jjmeter.save.saveservice.output_format=csv \
-            -Jjmeter.save.saveservice.timestamp_format=ms \
-            -Jjmeter.save.saveservice.default_delimiter=, \
+            -Jjmeter.save.saveservice.output_format=xml \
             -Jjmeter.save.saveservice.assertion_results_failure_message=true \
             -Jjmeter.save.saveservice.response_data=false \
             -Jjmeter.save.saveservice.samplerData=false \
             -Jjmeter.save.saveservice.url=true \
             -Jjmeter.save.saveservice.thread_counts=true
 
-      - name: Check results.jtl file
+      - name: Generate HTML Report
         run: |
-          echo "File size:"
-          ls -lh results.jtl
-          echo "First 40 lines of results.jtl:"
-          head -40 results.jtl || echo "results.jtl is empty or missing"
-
-      - name: Generate HTML Report (if results.jtl not empty)
-        run: |
-          if [ -s results.jtl ]; then
-            export PATH="$GITHUB_WORKSPACE/apache-jmeter-5.6.3/bin:$PATH"
-            jmeter -g results.jtl -o jmeter-report
-          else
-            echo "results.jtl is empty or missing; skipping report generation"
-            exit 1
-          fi
+          export PATH="$GITHUB_WORKSPACE/apache-jmeter-5.6.3/bin:$PATH"
+          jmeter -g results.jtl -o jmeter-report
 
       - name: Generate Aggregate CSV Report using CMDRunner
         run: |
-          if [ -s results.jtl ]; then
-            java -jar cmdrunner-2.3.jar --tool Reporter --generate-csv aggregate.csv --input-jtl results.jtl --plugin-type AggregateReport
-          else
-            echo "results.jtl is empty or missing; skipping aggregate report generation"
-            exit 1
-          fi
+          java -jar cmdrunner-2.3.jar --tool Reporter --generate-csv aggregate.csv --input-jtl results.jtl --plugin-type AggregateReport
 
       - name: Upload results as artifacts
         uses: actions/upload-artifact@v4
