@@ -1,0 +1,56 @@
+name: JMeter_run
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  run-jmeter:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Java and tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openjdk-17-jdk unzip
+
+      - name: Install JMeter 5.6.3
+        run: |
+          curl -sL https://downloads.apache.org/jmeter/binaries/apache-jmeter-5.6.3.zip -o jmeter.zip
+          yes | unzip -o -q jmeter.zip
+
+      - name: Run JMeter Test Plan (results in XML format)
+        run: |
+          export PATH="$GITHUB_WORKSPACE/apache-jmeter-5.6.3/bin:$PATH"
+          jmeter -n \
+            -t TestScripts/JMX/CI-CD_JMeter_InfluxDb_Grafana.jmx \
+            -l results.jtl
+
+      - name: Generate HTML Report from XML JTL
+        run: |
+          export PATH="$GITHUB_WORKSPACE/apache-jmeter-5.6.3/bin:$PATH"
+          jmeter -g results.jtl -o jmeter-report
+
+      - name: Download CMDRunner
+        run: |
+          curl -L -o cmdrunner-2.3.jar https://jmeter-plugins.org/files/packages/jpgc-cmd-2.3.zip
+          unzip -p jpgc-cmd-2.3.zip CMDRunner.jar > cmdrunner-2.3.jar
+
+      - name: Generate Aggregate CSV Report using CMDRunner
+        run: |
+          java -jar cmdrunner-2.3.jar --tool Reporter --generate-csv aggregate.csv --input-jtl results.jtl --plugin-type AggregateReport
+
+      - name: Upload results as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: jmeter-reports
+          path: |
+            results.jtl
+            aggregate.csv
+            jmeter-report
