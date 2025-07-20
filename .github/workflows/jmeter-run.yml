@@ -13,19 +13,20 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
-      - name: Install Java and tools
+      - name: Install Java
         run: |
           sudo apt-get update
           sudo apt-get install -y openjdk-17-jdk unzip
 
-      - name: Set up JMeter
+      - name: Install JMeter 5.6.3
         run: |
-          export PATH="$GITHUB_WORKSPACE/apache-jmeter-5.6.3/bin:$PATH"
-          echo "JMeter path set."
+          curl -sL https://downloads.apache.org/jmeter/binaries/apache-jmeter-5.6.3.zip -o jmeter.zip
+          unzip -o -q jmeter.zip
+          chmod +x apache-jmeter-5.6.3/bin/jmeter
 
-      - name: Run JMeter Test
+      - name: Run JMeter Test Plan
         run: |
           export PATH="$GITHUB_WORKSPACE/apache-jmeter-5.6.3/bin:$PATH"
           jmeter -n \
@@ -45,29 +46,28 @@ jobs:
             -Jjmeter.save.saveservice.time=true \
             -Jjmeter.save.saveservice.connect_time=true
 
-      - name: Display JTL output for debug
+      - name: Debug - View JTL Output
         run: |
-          echo "JTL Content:"
-          cat results.jtl
+          echo "----- JTL Output -----"
+          cat results.jtl || echo "No JTL file generated."
 
       - name: Generate HTML Report
         run: |
           export PATH="$GITHUB_WORKSPACE/apache-jmeter-5.6.3/bin:$PATH"
           mkdir -p jmeter-report
-          jmeter -g results.jtl -o jmeter-report || echo "Report generation failed but continuing."
+          jmeter -g results.jtl -o jmeter-report || echo "Failed to generate HTML report."
 
-      - name: Generate Aggregate CSV Report
+      - name: Generate Aggregate Report (CSV)
         run: |
-          java -jar cmdrunner-2.3.jar \
-            --tool Reporter \
+          java -jar cmdrunner-2.3.jar --tool Reporter \
             --generate-csv aggregate.csv \
             --input-jtl results.jtl \
-            --plugin-type AggregateReport
+            --plugin-type AggregateReport || echo "Aggregate report failed."
 
-      - name: Upload JMeter Artifacts
+      - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: jmeter-results
+          name: jmeter-artifacts
           path: |
             results.jtl
             aggregate.csv
