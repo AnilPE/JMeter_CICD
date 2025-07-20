@@ -1,0 +1,9 @@
+To upload the test results into your GitHub repo's Results/ folder with a timestamped subfolder (like Results/2025-07-20_15-45-00/), GitHub Actions must commit the files back to the repository, because by default it only uploads artifacts for temporary download — not persistent storage in the repo.
+
+
+Important:
+For git push to work from GitHub Actions:
+
+Your repo must allow GitHub Actions write access (check repo settings → Actions → General → Workflow permissions).
+
+If using a personal access token, add it to secrets.GITHUB_TOKEN.
